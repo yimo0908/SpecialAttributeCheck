@@ -1,0 +1,21 @@
+using Dalamud.Configuration;
+using System;
+
+namespace SpecialAttributeCheck;
+
+[Serializable]
+public class Configuration : IPluginConfiguration
+{
+    public int Version { get; set; } = 0;
+
+    /// <summary>在悬浮窗中输出检测结果（默认开启）。</summary>
+    public bool ShowFloatingWindowOutput { get; set; } = true;
+
+    /// <summary>在小队频道发送检测结果（默认关闭）。</summary>
+    public bool ShowChatOutput { get; set; } = false;
+
+    public void Save()
+    {
+        Plugin.PluginInterface.SavePluginConfig(this);
+    }
+}

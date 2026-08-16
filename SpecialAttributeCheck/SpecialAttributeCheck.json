@@ -1,0 +1,17 @@
+{
+  "Author": "zc979",
+  "Name": "新月岛补正检测",
+  "Punchline": "新月岛内检测小队补正（辅助职业大师层数 x★+装备特殊修正 y）",
+  "Description": "仅在蜃景幻界新月岛（新月岛南部 / 新月岛北部 / 超魔之塔）显示悬浮窗。\n悬浮窗提供三个按钮：\n小队检测 —— 检查小队所有成员的补正；\n目标检测 —— 检查当前选中玩家的补正；\n清除 —— 清除当前检测结果。\n补正 = 辅助职业大师层数 x ★ + 所穿新月岛装备特殊修正之和 y，并按“力之新月魔 / 魔之新月魔”五件套规则追加套装补正。\n其余小队成员的装备通过游戏“查看装备”流程读取后计算 y。\n设置中可选择在悬浮窗输出，或通过 /p 发送至小队频道。",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "crescent",
+    "occult",
+    "新月岛",
+    "补正",
+    "special",
+    "attribute",
+    "detect"
+  ],
+  "RepoUrl": "https://github.com/yimo0908/SpecialAttributeCheck"
+}
