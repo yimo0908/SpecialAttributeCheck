@@ -18,6 +18,12 @@ public sealed class PlayerResult
     /// <summary>y 是否未知（无法读取装备时）。</summary>
     public bool IsYUnknown { get; init; }
 
+    /// <summary>补正总值 2x+y（y 未知时为 null）。</summary>
+    public int? Total => IsYUnknown ? null : (2 * X) + Y;
+
+    /// <summary>补正列文本（2x+y 的值，未知时为 ?）。</summary>
+    public string CorrectionText => Total?.ToString() ?? "?";
+
     public string DisplayLine =>
-        IsYUnknown ? $"{JobName} {Name} {X}★+?" : $"{JobName} {Name} {X}★+{Y}";
+        $"{JobName} {Name} {CorrectionText}";
 }

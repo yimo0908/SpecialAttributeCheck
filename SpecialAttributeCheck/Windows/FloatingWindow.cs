@@ -13,6 +13,8 @@ public sealed class FloatingWindow : Window
     private static readonly Vector4 Yellow = new(1f, 0.85f, 0.3f, 1f);
     private static readonly Vector4 Gray = new(0.45f, 0.45f, 0.5f, 1f);
     private static readonly Vector4 Muted = new(0.62f, 0.67f, 0.76f, 1f);
+    private static readonly Vector4 RowEvenBg = new(0.05f, 0.06f, 0.09f, 0.55f);
+    private static readonly Vector4 RowOddBg = new(0.11f, 0.13f, 0.17f, 0.55f);
 
     private readonly Plugin plugin;
     private bool collapsed;
@@ -78,6 +80,12 @@ public sealed class FloatingWindow : Window
 
         ImGui.SameLine();
 
+        if (ImGui.Button("周围检测"))
+            plugin.ScanService.StartNearbyScan();
+        ImGuiOm.TooltipHover("检查周围20米内最多48名玩家的补正");
+
+        ImGui.SameLine();
+
         if (ImGui.Button("目标检测"))
             plugin.ScanService.StartTargetScan();
         ImGuiOm.TooltipHover("检查目标玩家的补正");
@@ -118,7 +126,33 @@ public sealed class FloatingWindow : Window
             return;
         }
 
+        using var table = ImRaii.Table("ResultsTable", 3, ImGuiTableFlags.RowBg);
+        if (!table.Success)
+            return;
+
+        ImGui.TableSetupColumn("职业", ImGuiTableColumnFlags.WidthFixed, 80f);
+        ImGui.TableSetupColumn("名称", ImGuiTableColumnFlags.WidthStretch);
+        ImGui.TableSetupColumn("补正", ImGuiTableColumnFlags.WidthFixed, 100f);
+        ImGui.TableHeadersRow();
+
+        var rowIndex = 0;
         foreach (var result in scan.Results)
-            ImGui.TextUnformatted(result.DisplayLine);
+        {
+            ImGui.TableNextRow();
+            ImGui.TableSetBgColor(
+                ImGuiTableBgTarget.RowBg0,
+                ImGui.GetColorU32(rowIndex % 2 == 0 ? RowEvenBg : RowOddBg));
+
+            ImGui.TableNextColumn();
+            ImGui.TextUnformatted(result.JobName);
+
+            ImGui.TableNextColumn();
+            ImGui.TextUnformatted(result.Name);
+
+            ImGui.TableNextColumn();
+            ImGui.TextUnformatted(result.CorrectionText);
+
+            rowIndex++;
+        }
     }
 }

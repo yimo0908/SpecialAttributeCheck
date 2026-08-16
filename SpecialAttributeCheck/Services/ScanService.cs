@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game;
@@ -71,6 +72,42 @@ public sealed class ScanService
         }
 
         EnsureLocalPlayer(list);
+        BeginScan(list);
+    }
+
+    /// <summary>周围检测：检查周围 20 米内最多 48 名玩家的补正。</summary>
+    public unsafe void StartNearbyScan()
+    {
+        if (IsScanning)
+            return;
+
+        var local = ObjectTable.LocalPlayer;
+        if (local == null)
+            return;
+
+        var list = new List<ScanTarget>();
+
+        foreach (var obj in ObjectTable.SearchObjects(x => x is IPlayerCharacter, IObjectTable.CharactersRange))
+        {
+            if (obj is not IPlayerCharacter player)
+                continue;
+
+            if (list.Count >= CorrectionData.MaxNearbyPlayers)
+                break;
+
+            if (Vector3.Distance(player.Position, local.Position) > CorrectionData.NearbyScanRadius)
+                continue;
+
+            list.Add(new ScanTarget
+            {
+                Name = player.Name,
+                EntityId = player.EntityID,
+                ClassJobId = player.ClassJob.RowId,
+                X = ReadSupportJobMasterStacks(&player.ToBCStruct()->StatusManager),
+                IsLocal = player.EntityID == local.EntityID,
+            });
+        }
+
         BeginScan(list);
     }
 
@@ -195,6 +232,9 @@ public sealed class ScanService
                 IsYUnknown = isYUnknown,
             });
         }
+
+        // 按补正值 2x+y 从高到低排序，未知（y 读取失败）排在最后
+        results.Sort((a, b) => (b.Total ?? int.MinValue).CompareTo(a.Total ?? int.MinValue));
 
         Results = results;
         ProgressText = string.Empty;

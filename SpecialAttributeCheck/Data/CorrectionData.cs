@@ -11,6 +11,12 @@ public static partial class CorrectionData
     /// <summary>辅助职业大师（满级辅助职业层数）状态 ID。</summary>
     public const uint SupportJobMasterStatusId = 4226u;
 
+    /// <summary>周围检测的半径（米）。</summary>
+    public const float NearbyScanRadius = 20f;
+
+    /// <summary>周围检测最多检测的玩家数。</summary>
+    public const int MaxNearbyPlayers = 48;
+
     /// <summary>套装补正额外计入值（超力/超魔之新月魔戒指的特殊修正+2）。</summary>
     public const int SetBonusCorrection = 2;
 
