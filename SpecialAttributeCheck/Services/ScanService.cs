@@ -203,6 +203,7 @@ public sealed class ScanService
         finalized = true;
 
         var results = new List<PlayerResult>();
+        var useTotal = plugin.Configuration.CalculateTotalCorrection;
 
         foreach (var target in targets)
         {
@@ -222,6 +223,10 @@ public sealed class ScanService
                 isYUnknown = true;
             }
 
+            var correctionText = isYUnknown
+                ? useTotal ? "?" : $"{target.X}★+?"
+                : useTotal ? ((2 * target.X) + y).ToString() : $"{target.X}★+{y}";
+
             results.Add(new PlayerResult
             {
                 Name = target.Name,
@@ -230,6 +235,7 @@ public sealed class ScanService
                 X = target.X,
                 Y = y,
                 IsYUnknown = isYUnknown,
+                CorrectionText = correctionText,
             });
         }
 

@@ -21,8 +21,8 @@ public sealed class PlayerResult
     /// <summary>补正总值 2x+y（y 未知时为 null）。</summary>
     public int? Total => IsYUnknown ? null : (2 * X) + Y;
 
-    /// <summary>补正列文本（2x+y 的值，未知时为 ?）。</summary>
-    public string CorrectionText => Total?.ToString() ?? "?";
+    /// <summary>补正列文本（由设置决定显示 2x+y 或 x★+y，未知时为 ?）。</summary>
+    public required string CorrectionText { get; init; }
 
     public string DisplayLine =>
         $"{JobName} {Name} {CorrectionText}";

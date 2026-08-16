@@ -18,6 +18,7 @@ public sealed class FloatingWindow : Window
 
     private readonly Plugin plugin;
     private bool collapsed;
+    private bool blurNames;
 
     public FloatingWindow(Plugin plugin)
         : base(
@@ -133,7 +134,17 @@ public sealed class FloatingWindow : Window
         ImGui.TableSetupColumn("职业", ImGuiTableColumnFlags.WidthFixed, 80f);
         ImGui.TableSetupColumn("名称", ImGuiTableColumnFlags.WidthStretch);
         ImGui.TableSetupColumn("补正", ImGuiTableColumnFlags.WidthFixed, 100f);
-        ImGui.TableHeadersRow();
+
+        // 表头：单击“名称”可模糊 / 取消模糊玩家名称
+        ImGui.TableNextRow(ImGuiTableRowFlags.Headers);
+        ImGui.TableNextColumn();
+        ImGui.TableHeader("职业");
+        ImGui.TableNextColumn();
+        if (ImGui.Button("名称", new Vector2(ImGui.GetContentRegionAvail().X, 0f)))
+            blurNames = !blurNames;
+        ImGuiOm.TooltipHover("单击模糊 / 取消模糊玩家名称");
+        ImGui.TableNextColumn();
+        ImGui.TableHeader("补正");
 
         var rowIndex = 0;
         foreach (var result in scan.Results)
@@ -147,12 +158,19 @@ public sealed class FloatingWindow : Window
             ImGui.TextUnformatted(result.JobName);
 
             ImGui.TableNextColumn();
-            ImGui.TextUnformatted(result.Name);
+            ImGui.TextUnformatted(blurNames ? BlurName(result.Name) : result.Name);
 
             ImGui.TableNextColumn();
             ImGui.TextUnformatted(result.CorrectionText);
 
             rowIndex++;
         }
+    }
+
+    private static string BlurName(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return name;
+        return new string('█', name.Length);
     }
 }

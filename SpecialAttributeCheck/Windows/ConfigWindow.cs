@@ -28,14 +28,22 @@ public sealed class ConfigWindow : Window
         ImGui.Separator();
 
         var showFloating = cfg.ShowFloatingWindowOutput;
-        if (ImGui.Checkbox("悬浮窗输出（默认开启）", ref showFloating))
+        if (ImGui.Checkbox("悬浮窗输出", ref showFloating))
         {
             cfg.ShowFloatingWindowOutput = showFloating;
             cfg.Save();
         }
 
+        var calcTotal = cfg.CalculateTotalCorrection;
+        if (ImGui.Checkbox("计算补正总数", ref calcTotal))
+        {
+            cfg.CalculateTotalCorrection = calcTotal;
+            cfg.Save();
+        }
+        ImGui.TextDisabled("勾选后，补正显示为职业补*2+装备补的和");
+
         var showChat = cfg.ShowChatOutput;
-        if (ImGui.Checkbox("聊天输出（默认关闭，发送至小队频道）", ref showChat))
+        if (ImGui.Checkbox("聊天输出", ref showChat))
         {
             cfg.ShowChatOutput = showChat;
             cfg.Save();
