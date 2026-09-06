@@ -1,3 +1,4 @@
+using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Command;
 using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
@@ -17,6 +18,7 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IFramework Framework { get; private set; } = null!;
     [PluginService] internal static IPartyList PartyList { get; private set; } = null!;
     [PluginService] internal static ITargetManager TargetManager { get; private set; } = null!;
+    [PluginService] internal static IAddonLifecycle AddonLifecycle { get; private set; } = null!;
 
     private const string CommandName = "/nmc";
 
@@ -30,6 +32,8 @@ public sealed class Plugin : IDalamudPlugin
 
     internal ScanService ScanService { get; init; }
 
+    internal NameplateService NameplateService { get; init; }
+
     public Plugin()
     {
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
@@ -38,6 +42,7 @@ public sealed class Plugin : IDalamudPlugin
         DService.Init(PluginInterface);
 
         ScanService = new ScanService(this, Log, PartyList, TargetManager);
+        NameplateService = new NameplateService(this, AddonLifecycle);
 
         ConfigWindow = new ConfigWindow(this);
         FloatingWindow = new FloatingWindow(this);
@@ -60,6 +65,8 @@ public sealed class Plugin : IDalamudPlugin
 
     public void Dispose()
     {
+        NameplateService.Dispose();
+
         Framework.Update -= ScanService.Update;
 
         PluginInterface.UiBuilder.Draw -= OnDraw;

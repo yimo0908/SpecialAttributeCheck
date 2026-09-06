@@ -34,6 +34,7 @@ public sealed class ScanService
         this.partyList = partyList;
         this.targetManager = targetManager;
         inspect = new InspectService(log);
+        inspect.EntityInspected += OnEntityInspected;
     }
 
     public List<PlayerResult> Results { get; private set; } = [];
@@ -160,7 +161,7 @@ public sealed class ScanService
 
         if (IsScanning)
         {
-            ProgressText = $"检测中 {inspect.CompletedCount}/{inspect.TotalCount} ...";
+            ProgressText = $"检测中 {Results.Count}/{targets.Count} ...";
             return;
         }
 
@@ -174,7 +175,6 @@ public sealed class ScanService
         targets.AddRange(scanTargets);
         finalized = false;
         NoticeText = string.Empty;
-        ProgressText = $"检测中 0/{targets.Count} ...";
 
         var pendingInspects = new List<uint>();
 
@@ -182,7 +182,9 @@ public sealed class ScanService
         {
             if (target.IsLocal)
             {
-                target.Y = CorrectionCalculator.SumSpecialCorrection(ReadLocalEquippedItems());
+                var y = CorrectionCalculator.SumSpecialCorrection(ReadLocalEquippedItems());
+                target.Y = y;
+                EmitResult(target, false, y);
             }
             else
             {
@@ -191,6 +193,8 @@ public sealed class ScanService
         }
 
         inspect.Start(pendingInspects);
+
+        ProgressText = $"检测中 {Results.Count}/{targets.Count} ...";
 
         if (!IsScanning)
             FinalizeScan();
@@ -202,54 +206,60 @@ public sealed class ScanService
             return;
         finalized = true;
 
-        var results = new List<PlayerResult>();
-        var useTotal = plugin.Configuration.CalculateTotalCorrection;
+        ProgressText = string.Empty;
+    }
 
+    /// <summary>单个非本地玩家查看装备流程结束（成功或失败）时，立即输出该玩家结果。</summary>
+    private void OnEntityInspected(uint entityId, uint[]? gear)
+    {
         foreach (var target in targets)
         {
-            var isYUnknown = false;
-            var y = 0;
+            if (target.EntityId != entityId)
+                continue;
 
-            if (target.Y.HasValue)
+            if (gear != null)
             {
-                y = target.Y.Value;
-            }
-            else if (inspect.GearByEntity.TryGetValue(target.EntityId, out var gear))
-            {
-                y = CorrectionCalculator.SumSpecialCorrection(gear);
+                var y = CorrectionCalculator.SumSpecialCorrection(gear);
+                target.Y = y;
+                EmitResult(target, false, y);
             }
             else
             {
-                isYUnknown = true;
+                EmitResult(target, true, 0);
             }
 
-            var correctionText = isYUnknown
-                ? useTotal ? "?" : $"{target.X}★+?"
-                : useTotal ? ((2 * target.X) + y).ToString() : $"{target.X}★+{y}";
-
-            results.Add(new PlayerResult
-            {
-                Name = target.Name,
-                EntityId = target.EntityId,
-                JobName = CorrectionData.GetJobName(target.ClassJobId),
-                X = target.X,
-                Y = y,
-                IsYUnknown = isYUnknown,
-                CorrectionText = correctionText,
-            });
+            return;
         }
+    }
+
+    /// <summary>生成并输出单个玩家结果：加入列表、按补正值排序，并按设置发送小队频道。</summary>
+    private void EmitResult(ScanTarget target, bool isYUnknown, int y)
+    {
+        var useTotal = plugin.Configuration.CalculateTotalCorrection;
+
+        var correctionText = isYUnknown
+            ? useTotal ? "?" : $"{target.X}★+?"
+            : useTotal ? ((2 * target.X) + y).ToString() : $"{target.X}★+{y}";
+
+        var result = new PlayerResult
+        {
+            Name = target.Name,
+            EntityId = target.EntityId,
+            ClassJobId = target.ClassJobId,
+            JobName = CorrectionData.GetJobShortName(target.ClassJobId),
+            X = target.X,
+            Y = y,
+            IsYUnknown = isYUnknown,
+            CorrectionText = correctionText,
+        };
+
+        Results.Add(result);
 
         // 按补正值 2x+y 从高到低排序，未知（y 读取失败）排在最后
-        results.Sort((a, b) => (b.Total ?? int.MinValue).CompareTo(a.Total ?? int.MinValue));
-
-        Results = results;
-        ProgressText = string.Empty;
+        Results.Sort((a, b) => (b.Total ?? int.MinValue).CompareTo(a.Total ?? int.MinValue));
 
         if (plugin.Configuration.ShowChatOutput)
-        {
-            foreach (var result in Results)
-                ChatManager.Instance().SendMessage($"/p {result.DisplayLine}");
-        }
+            ChatManager.Instance().SendMessage($"/p {result.DisplayLine}");
     }
 
     private unsafe void EnsureLocalPlayer(List<ScanTarget> list)

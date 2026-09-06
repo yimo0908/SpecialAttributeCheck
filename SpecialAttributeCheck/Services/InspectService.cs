@@ -32,6 +32,9 @@ public unsafe sealed class InspectService
     private readonly List<uint> queue = [];
     private readonly Dictionary<uint, uint[]> gearByEntity = [];
 
+    /// <summary>单个实体查看流程结束（成功或失败）时触发，携带装备物品 ID；失败时为 null。</summary>
+    public event Action<uint, uint[]?>? EntityInspected;
+
     private int queueIndex;
     private int attempts;
     private bool inFlight;
@@ -46,12 +49,6 @@ public unsafe sealed class InspectService
     }
 
     public bool IsBusy => queueIndex < queue.Count || inFlight;
-
-    public int TotalCount => queue.Count;
-
-    public int CompletedCount => queueIndex;
-
-    public IReadOnlyDictionary<uint, uint[]> GearByEntity => gearByEntity;
 
     public void Start(IEnumerable<uint> entityIds)
     {
@@ -193,6 +190,9 @@ public unsafe sealed class InspectService
 
     private void FinishCurrent()
     {
+        var entityId = inFlightEntity;
+        var gear = gearByEntity.TryGetValue(entityId, out var items) ? items : null;
+
         try
         {
             var inspectAddon = GetInspectAddon();
@@ -213,5 +213,7 @@ public unsafe sealed class InspectService
         queueIndex++;
         inFlight = false;
         nextRequestAt = DateTime.UtcNow.AddMilliseconds(RequestGapMs);
+
+        EntityInspected?.Invoke(entityId, gear);
     }
 }

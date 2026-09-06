@@ -42,6 +42,14 @@ public sealed class ConfigWindow : Window
         }
         ImGui.TextDisabled("勾选后，补正显示为职业补*2+装备补的和");
 
+        var showNameplate = cfg.ShowNameplateOutput;
+        if (ImGui.Checkbox("名牌显示补正", ref showNameplate))
+        {
+            cfg.ShowNameplateOutput = showNameplate;
+            cfg.Save();
+        }
+        ImGui.TextDisabled("在玩家名牌的名字（称号）后方显示补正结果，字号比名字小 2 号");
+
         var showChat = cfg.ShowChatOutput;
         if (ImGui.Checkbox("聊天输出", ref showChat))
         {

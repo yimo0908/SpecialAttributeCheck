@@ -14,8 +14,9 @@
 补正 = 2x+y（x=辅助职业大师层数，y=所穿新月岛装备特殊修正之和，并按“力之新月魔 / 魔之新月魔”五件套规则追加套装补正）；设置中可切换为显示 x★+y。
 其余小队成员的装备通过游戏“查看装备”流程读取后计算 y。
 结果按职业 / 名称 / 补正三列对齐显示，按补正值从高到低排序，行间交替底色。
+检测结果同步显示在对应玩家的名牌上（名字/称号后方，字号比名字小 2 号，仅新月岛地域）。
 设置中可选择在悬浮窗输出，或通过 /p 发送至小队频道。
-设置项：悬浮窗输出（默认开）、计算补正总数（默认开）、聊天输出（默认关）。</Description>
+设置项：悬浮窗输出（默认开）、计算补正总数（默认开）、名牌显示补正（默认开）、聊天输出（默认关）。</Description>
     <RepoUrl>https://github.com/yimo0908/SpecialAttributeCheck</RepoUrl>
     <Tags>crescent;occult;新月岛;补正;special;attribute;detect</Tags>
     <RootNamespace>SpecialAttributeCheck</RootNamespace>

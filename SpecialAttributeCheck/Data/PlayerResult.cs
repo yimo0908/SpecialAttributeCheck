@@ -7,6 +7,9 @@ public sealed class PlayerResult
 
     public required string JobName { get; init; }
 
+    /// <summary>职业 ClassJob 行 ID（用于按职能着色）。</summary>
+    public required uint ClassJobId { get; init; }
+
     public required uint EntityId { get; init; }
 
     /// <summary>辅助职业大师层数 x。</summary>
