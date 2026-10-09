@@ -2,7 +2,7 @@
 <Project Sdk="Dalamud.CN.NET.Sdk/15.0.0">
   <PropertyGroup>
     <Version>0.2.0.0</Version>
-    <Author>zc979</Author>
+    <Author>yimo</Author>
     <Name>新月岛补正检测</Name>
     <Punchline>新月岛内检测小队/周围玩家补正（2x+y）</Punchline>
     <Description>仅在蜃景幻界新月岛（新月岛南部 / 新月岛北部 / 超魔之塔）显示悬浮窗。
