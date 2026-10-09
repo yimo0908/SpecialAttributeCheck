@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Dalamud.CN.NET.Sdk/15.0.0">
   <PropertyGroup>
-    <Version>0.2.0.0</Version>
+    <Version>0.3.0.0</Version>
     <Author>yimo</Author>
     <Name>新月岛补正检测</Name>
     <Punchline>新月岛内检测小队/周围玩家补正（2x+y）</Punchline>
